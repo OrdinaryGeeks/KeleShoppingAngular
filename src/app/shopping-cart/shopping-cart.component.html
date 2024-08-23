@@ -1,0 +1,26 @@
+
+
+<div class="container">
+    <div style="margin-top:30">
+        
+<div *ngFor="let item of cartItems; let i = index">
+
+    <div class="card mt-3 offset-4 col-md-4 text-center align-content-center text-align:center">
+
+    <img src={{item.photoURL}} height="200px" width="200px" alt={{item.description}}/>
+    <p style="color:blue">{{item.name}}</p>
+    <p style="color:blue">{{item.description}}</p>
+    <div style="color:blue">Price: {{item.price}} Units In Cart: {{item.unitsAvailable}} 
+    <button class="btn btn-warning" (click)="addUnit(i)">+</button> 
+    <button class="btn btn-danger" (click)="removeUnit(i)">-</button> </div>
+
+    <button style="color:red" class="btn btn-primary" (click)="removeItem(i)">Remove</button>
+</div>
+   
+    
+</div>
+<div *ngIf="cartItems.length>0" style="margin:auto; width:100px">
+<button style="color:purple" class="btn btn-primary" (click)="purchase()">Purchase</button>
+    </div>
+</div>
+</div>

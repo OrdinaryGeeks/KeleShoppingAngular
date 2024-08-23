@@ -1,0 +1,39 @@
+<nav style="background-color: cadetblue" class="align-middle navbar navbar-expand-lg w-100 justify-content-between navbar-light bg-dark">
+    <a  style="color:red"class="navbar-brand" href="#">Nathaniel Kele Demo</a>
+    <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+-->
+    <div class="mt-4 collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a  style="color:red"class="nav-link" href="/">Home </a>
+        </li>
+        <li  class="nav-item">
+          <a style="color:red" class="nav-link" href="/about">About</a>
+        </li>
+     
+    <li class="nav-item">
+        <a  style="color:red"class="nav-link" href="/storeFront">Store</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/shopping">
+            <div *ngIf="isEmpty; else cartFull">
+            <img src="/cartEmpty.jpg" width="50px" height="50px" alt="shopping cart"/>
+            </div>
+            <ng-template #cartFull>
+            <img src="/cartFull.jpg" width="50px" height="50px" alot="shopping cart"/>
+        </ng-template>
+
+        </a>
+      </li>
+    
+      </ul>
+      </div>
+      <div>
+      <form class="float-right form-inline flex2 end-30 my-2 my-lg-0">
+        <input class="form-control  mr-sm-2" (input)="onSearchChange($event)" width="300px" type="search" placeholder="Search" aria-label="Search">
+        <button style="color:red"  class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
