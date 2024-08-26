@@ -5,6 +5,8 @@ import { InventoryItem } from '../inventory-item.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ShoppingCartService } from '../shopping-cart.service';
+import { CartItem } from '../cart-item.model';
+
 
 
 @Component({
@@ -19,12 +21,17 @@ export class StoreFrontComponent {
   
   inputs : string [] = [];
   storeItems : InventoryItem [] = [];
-  cartItems: InventoryItem[] = [];
+  cartItems: CartItem[] = [];
   showItems: InventoryItem [] = [];
   constructor(private inventoryService: InventoryService, private cartService: ShoppingCartService)
   {
 
+  
+    
+    this.inventoryService.getItems();
+    
     const localItems = localStorage.getItem("inventory");
+    
     if(localItems)
     this.storeItems = JSON.parse(localItems);
     for(let i = 0; i<this.storeItems.length; i++)
@@ -56,24 +63,26 @@ export class StoreFrontComponent {
     this.cartService.cartEmpty.next(false);
   }
 
-  addItem(id:number, index:number)
+  addItemToCart(id:number, index:number)
   {
 
-    
-    const item = (this.storeItems.find(p => p.inventoryItemId == id));
+ 
+    const item = (this.storeItems.find(p => p.id == id));
+
     if(item)
     {
- 
+     
     const cartItemIndex =this.cartItems.findIndex(compareItem => compareItem.name == item.name);
-  
-    if(parseInt(this.inputs[0]))
+ 
+    if(parseInt(this.inputs[index]))
     {
     if(cartItemIndex >= 0)
-    this.cartItems[cartItemIndex].unitsAvailable += parseInt(this.inputs[0]);
+    this.cartItems[cartItemIndex].unitsInCart += parseInt(this.inputs[index]);
     else{
+    
     this.cartItems.push({description:item.description, photoURL:item.photoURL,
-      price: item.price, unitsAvailable: parseInt(this.inputs[index]), inventoryItemId:
-      item.inventoryItemId, name: item.name   
+      price: item.price, unitsInCart: parseInt(this.inputs[index]), id:
+      item.id, name: item.name   
     });
       }
     }

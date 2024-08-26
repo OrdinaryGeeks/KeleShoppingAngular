@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import {Subject} from 'rxjs';
 import { InventoryService } from '../inventory.service';
 import { Router } from '@angular/router';
+import { CartItem } from '../cart-item.model';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -16,7 +18,7 @@ import { Router } from '@angular/router';
 export class ShoppingCartComponent {
 
 
-  cartItems: InventoryItem[] = [];
+  cartItems: CartItem[] = [];
   constructor(private routerService:Router, private cartService:ShoppingCartService, private inventoryService:InventoryService)
   {  
    
@@ -27,17 +29,24 @@ export class ShoppingCartComponent {
   ngOnInit(){
     this.cartService.currentCartItems.subscribe(item => {if(item)this.cartItems.push(item)});    
     
-   this.getItems();
+   this.getCartItems();
    this.checkIfCartEmpty();
   }
-  purchase()
+  async purchase()
   {
-    if(this.inventoryService.purchase(this.cartItems))
+    const purchaseSuccess = await this.inventoryService.purchase(this.cartItems);
+
+    
+    if(purchaseSuccess)
     {
+      alert("Purchasing");
+      setTimeout(() =>{
       alert("Thank you for your purchase");
       this.cartItems.length=0;
+      localStorage.removeItem("cart");
       this.checkIfCartEmpty();
       this.routerService.navigate(['storeFront']);
+      }, 10);
 
     }
     else{
@@ -47,13 +56,13 @@ export class ShoppingCartComponent {
   }
   addUnit(index:number)
   {
-    this.cartItems[index].unitsAvailable++;
+    this.cartItems[index].unitsInCart++;
     localStorage.setItem("cart", JSON.stringify(this.cartItems));
   }
   removeUnit(index:number)
   {
-    this.cartItems[index].unitsAvailable--;
-    if(this.cartItems[index].unitsAvailable <=0)
+    this.cartItems[index].unitsInCart--;
+    if(this.cartItems[index].unitsInCart <=0)
           this.cartItems = this.cartItems.filter(compareItem => this.cartItems[index].name!=compareItem.name);
 
     localStorage.setItem("cart", JSON.stringify(this.cartItems));
@@ -73,7 +82,7 @@ export class ShoppingCartComponent {
     localStorage.setItem("cart", JSON.stringify(this.cartItems));
     this.checkIfCartEmpty();
   }
-  getItems()
+  getCartItems()
   {
     const cartJSON = localStorage.getItem("cart");
     if(cartJSON)

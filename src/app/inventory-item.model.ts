@@ -1,13 +1,11 @@
-export class InventoryItem {
+import { Item } from "./item.model";
+
+export class InventoryItem extends Item{
 
 
 
 
-    price : number=0;
+   
     unitsAvailable : number=0;
-    photoURL : string = "";
-    description: string = "";
-    inventoryItemId:number=0;
-    name: string="";
-
+    storeFrontId: number =0;
 }

@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { InventoryItemComponent } from './inventory-item/inventory-item.component';
 import { InventoryItem } from './inventory-item.model';
 import { BehaviorSubject } from 'rxjs';
+import { StoreFront } from './store-front.model';
+import { CartItem } from './cart-item.model';
+import { InventoryItemDTO } from './inventory-item-dto.model';
 
 @Injectable({
   providedIn: 'root'
@@ -9,50 +12,114 @@ import { BehaviorSubject } from 'rxjs';
 export class InventoryService {
   searchInput=new BehaviorSubject("");
   InventoryItems : InventoryItem []=[];
-  constructor() {
+  storeFront: StoreFront |null=null;
+  apiURL = "https://localhost:7062/api/";
+  
 
-    const localItems = localStorage.getItem("inventory");
-
-    if(localItems == null)
-    {
-    this.InventoryItems.push({name:"Furry Coat", inventoryItemId:0, description:"coat tagged with message", price:75.00, photoURL:"https://th.bing.com/th?id=OPHS.NKsud1i9mMNEAQ474C474&w=592&h=550&qlt=20&o=5&dpr=1.3&pid=21.1", unitsAvailable:20},
-      {name:"Keychain of Love", inventoryItemId:1, description:"designer key chains with photo embedded", price:4.00, photoURL:"https://cms.cloudinary.vpsvc.com/images/c_scale,dpr_auto,f_auto,q_auto:best,t_productPageHeroGalleryTransformation_v2,w_auto/legacy_dam/en-us/S001385903/keyring-hero-global-001?cb=1bab61ecd4522a18bf303bc9726354b69d71c331", unitsAvailable:15},
-    {name:"Shirt of Remembrance", inventoryItemId:2, description:"shirt with photo", price:35.00, unitsAvailable:20, photoURL:"https://th.bing.com/th/id/OIP.7h_u8v58cWOKF7NPf_yElQHaF7?rs=1&pid=ImgDetMain"}
-    );
+  async getItems()
+  {
+   
     
-    localStorage.setItem("inventory", JSON.stringify(this.InventoryItems));
-   }
+    const localStore = localStorage.getItem("store");
+    if(localStore)
+      this.storeFront= JSON.parse(localStore);
+    
+    if(this.storeFront)
+    {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      var getItemsResponse = await fetch(this.apiURL + "storefronts/items",
+        {method:"POST",
+          body:JSON.stringify(this.storeFront),
+          headers:myHeaders
+        }
+      );
+         localStorage.setItem("inventory", JSON.stringify(await getItemsResponse.json()));
+         
+         /*.then((json) => {this.InventoryItems = json;
+          console.log(json);
+          alert("In then");
+        localStorage.setItem("inventory", JSON.stringify(this.InventoryItems));
+        }
+      );*/
+    }
   }
 
-   purchase(purchasedItems :InventoryItem[]):boolean
+  async addItems(itemsToBeAdded : InventoryItemDTO[])
+  {
+    
+    const storeInventory = {storeInventory : itemsToBeAdded};
+    const localStore = localStorage.getItem("store");
+    if(localStore)
+      this.storeFront= JSON.parse(localStore);
+    
+    if(this.storeFront)
+    {
+      console.log(JSON.stringify(itemsToBeAdded));
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      var addItemResponse = await fetch(this.apiURL + "storefronts/"+this.storeFront.id+"/addItems",
+        {method:"POST",
+          body:JSON.stringify(itemsToBeAdded),
+          headers:myHeaders
+        }
+      );
+
+      if(addItemResponse.status != 204)
+        alert("Items not added");
+    }
+
+  }
+ 
+  
+   async purchase(purchasedItems :CartItem[]):Promise<boolean>
    {
-    const localItems = localStorage.getItem("inventory");
-    if(localItems)
-    this.InventoryItems = JSON.parse(localItems);
-    let unavailable = false;
-    for(let i =0; i<purchasedItems.length; i++)
+      
+    let purchase = false;
+      const localStore = localStorage.getItem("store");
+    if(localStore)
     {
-      this.InventoryItems.find(compareItem => {if(compareItem.name == purchasedItems[i].name){
-        if(compareItem.unitsAvailable < purchasedItems[i].unitsAvailable)
-          unavailable = true;
-      }})
-    }
-
-    if(!unavailable)
-    {
-      for(let i =0; i<purchasedItems.length; i++)
+      this.storeFront= JSON.parse(localStore);
+      if(this.storeFront)
       {
-        
-        this.InventoryItems.find(compareItem => compareItem.name == purchasedItems[i].name)!.unitsAvailable -= purchasedItems[i].unitsAvailable;
-        console.log(this.InventoryItems);
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+     var storeResponse= await fetch(this.apiURL + "storeFronts/store/"+this.storeFront.id+"/purchase/", {
+    method:"POST",
+    body:JSON.stringify(purchasedItems),
+    headers:myHeaders
+    }).then(async response => 
+       {if(!response.ok)
+      throw new Error("Invalid operation in the Purchase " + response.statusText);
+
+      const responseText = await response.text();
+      //alert(responseText);
+      if(responseText == "Items purchased")
+      {
+       alert("Purchase true");
+       purchase = true;
+       this.getItems();
+              return true;
       }
-      localStorage.setItem("inventory", JSON.stringify(this.InventoryItems));
-    return true;
-    }
-    else
-    return false;
-
-
-
+      else
+      return false;
+    }).catch(error => {
+        alert("Error");
+    })
+  }
+  else
+  return false;
+}
+else
+return false;
+if(!purchase)
+  alert("Just returning false for some reason");
+else
+return true;
+return false;
    }
+    
+
+   
+  
 }

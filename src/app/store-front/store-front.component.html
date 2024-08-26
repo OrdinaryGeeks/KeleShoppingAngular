@@ -8,9 +8,10 @@
 <img src={{item.photoURL}} height="200px" width="200px" alt={{item.description}}/>
 <p style="color:blue">{{item.name}}</p>
 <p style="color:blue">{{item.description}}</p>
+
 <p style="color:blue">Price: {{item.price}} Units Available: {{item.unitsAvailable}}</p>
 <input class="form-control" name={{item.name}} type="text" [(ngModel)] = "inputs[i]">
-<button type="button" class="btn btn-sm  btn-outline-primary" (click)="addItem(item.inventoryItemId, i)">Buy</button>
+<button type="button" class="btn btn-sm  btn-outline-primary" (click)="addItemToCart(item.id, i); ">Add To Cart</button>
 </div>
 </div>
 </div>
